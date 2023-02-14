@@ -3,6 +3,16 @@ import { useEffect, useReducer, useState } from 'react';
 import CardList from './components/CardList';
 import CreationForm from './components/CreationForm';
 
+import {
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+} from 'firebase/firestore';
+
+import { achivementsCollection } from './firebase/firebase-config.js';
+
 export interface CardData {
   id: string;
   category: string;
@@ -54,44 +64,69 @@ function App() {
   );
 
   const [cardList, setCardList] = useState<CardData[]>([]);
+  const [trigger, setTrigger] = useState(false);
+
+  useEffect(() => {
+    const getAchivements = async () => {
+      const data = await getDocs(achivementsCollection);
+      setCardList(
+        data.docs.reverse().map((doc) => ({
+          id: doc.id,
+          category: doc.data().category,
+          description: doc.data().description,
+          date: doc.data().date,
+        }))
+      );
+    };
+    getAchivements();
+  }, [trigger]);
 
   const deleteCardHandler = (card: CardData) => {
-    setCardList((prevState) => {
-      return prevState.filter((item) => {
-        return item.id !== card.id;
-      });
-    });
+    deleteDoc(doc(achivementsCollection, card.id));
+    setTrigger((prev) => !prev);
   };
 
-  const editCardHandler = (
+  const editCardHandler = async (
     event: React.FormEvent<HTMLFormElement> | undefined,
     card: CardData
   ) => {
     if (event) event.preventDefault();
+    console.log(card);
 
-    setCardList((prevState) => {
-      return prevState.map((item) => {
-        if (item.id === card.id) {
-          return card;
-        }
-        return item;
+    if (
+      card.category !== '' ||
+      card.description !== '' ||
+      card.date !== ''
+    ) {
+      await updateDoc(doc(achivementsCollection, card.id), {
+        category: card.category,
+        description: card.description,
+        date: card.date,
       });
-    });
+      setTrigger((prev) => !prev);
+    } else alert('Please fill all the fields!');
   };
 
-  const handleFormSubmit = (
+  const handleAddCard = async (
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
-    setCardList((prevState) => {
-      cardFormState.id = Math.random().toString();
-      return [cardFormState, ...prevState];
-    });
-
-    dispatchCardFormState({
-      type: 'RESET',
-    });
+    if (
+      cardFormState.category !== '' ||
+      cardFormState.description !== '' ||
+      cardFormState.date !== ''
+    ) {
+      await addDoc(achivementsCollection, {
+        category: cardFormState.category,
+        description: cardFormState.description,
+        date: cardFormState.date,
+      });
+      dispatchCardFormState({
+        type: 'RESET',
+      });
+      setTrigger((prev) => !prev);
+    } else alert('Please fill all the fields!');
   };
 
   const formChangeHandler = (
@@ -108,10 +143,10 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="w-full flex-col">
       <CreationForm
         formChangeHandler={formChangeHandler}
-        handleFormSubmit={handleFormSubmit}
+        handleAddCard={handleAddCard}
         category={cardFormState.category}
         description={cardFormState.description}
         date={cardFormState.date}

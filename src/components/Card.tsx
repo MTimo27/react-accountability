@@ -12,31 +12,43 @@ const Card: React.FC<{
 }> = (props) => {
   const [edit, setEdit] = useState(false);
   return (
-    <div>
+    <div className="w-full border-2 border-gray-200 rounded-md p-5">
       {!edit ? (
-        <>
-          <h1>{props.cardData.category}</h1>
+        <div className="flex flex-col gap-2">
+          <h1
+            className="text-lg font-semibold
+        "
+          >
+            {props.cardData.category}
+          </h1>
           <p>{props.cardData.description}</p>
-          <p>{props.cardData.date}</p>
-          <button
-            onClick={() =>
-              props.deleteCardHandler(props.cardData)
-            }
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => {
-              props.editCardHandler(
-                undefined,
-                props.cardData
-              );
-              setEdit(true);
-            }}
-          >
-            Edit
-          </button>
-        </>
+          <p className="text-end font-semibold">
+            {props.cardData.date}
+          </p>
+
+          <div className="flex mt-2 gap-2 justify-end">
+            <button
+              onClick={() => {
+                props.editCardHandler(
+                  undefined,
+                  props.cardData
+                );
+                setEdit(true);
+              }}
+              className="w-32 p-1.5 rounded-md border-none bg-gray-400 text-white"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() =>
+                props.deleteCardHandler(props.cardData)
+              }
+              className="w-32 p-1.5 rounded-md border-none bg-red-700 text-white"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       ) : (
         <>
           <EditForm

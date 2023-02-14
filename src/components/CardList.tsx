@@ -10,9 +10,11 @@ const CardList: React.FC<{
   ) => void;
 }> = (props) => {
   return (
-    <div>
-      <h1>Achivement List</h1>
-      <div>
+    <div className="flex flex-col justify-center items-center mb-10">
+      <h1 className="text-lg font-semibold mb-2">
+        Achivements
+      </h1>
+      <div className="flex flex-col w-11/12 sm:w-1/3 justify-center items-center gap-2">
         {props.cardList.map((card) => (
           <Card
             key={card.id}

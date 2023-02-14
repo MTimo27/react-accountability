@@ -38,38 +38,62 @@ const EditForm: React.FC<{
         props.setEdit(false);
         props.editCardHandler(event, cardFormState);
       }}
+      className="flex flex-col gap-2"
     >
-      <label>
-        Category:
+      <div className="flex flex-col">
+        <label
+          htmlFor="category"
+          className="font-semibold mb-1"
+        >
+          Category
+        </label>
         <input
+          className="border-2 rounded-md border-gray-200 p-1.5 focus:outline-none focus:ring focus:ring-indigo-200"
           type="text"
           name="category"
           value={cardFormState.category}
           onChange={formChangeHandler}
         />
-      </label>
+      </div>
 
-      <label>
-        Description:
+      <div className="flex flex-col">
+        <label
+          className="font-semibold mb-1"
+          htmlFor="description"
+        >
+          Description
+        </label>
         <input
+          className="border-2 rounded-md border-gray-200 p-1.5 focus:outline-none focus:ring focus:ring-indigo-200"
           type="text"
           name="description"
           value={cardFormState.description}
           onChange={formChangeHandler}
         />
-      </label>
+      </div>
 
-      <label>
-        Date:
+      <div className="flex flex-col">
+        <label
+          className="font-semibold mb-1"
+          htmlFor="date"
+        >
+          Date
+        </label>
         <input
+          className="border-2 rounded-md mb-2 border-gray-200 p-1.5 focus:outline-none focus:ring focus:ring-indigo-200"
           type="date"
           name="date"
           value={cardFormState.date}
           onChange={formChangeHandler}
         />
-      </label>
+      </div>
 
-      <button type="submit">Submit changes</button>
+      <button
+        className="sm:my-0 sm:mx-auto sm:w-32 p-1.5 rounded-md border-none bg-indigo-700 text-white"
+        type="submit"
+      >
+        Submit changes
+      </button>
     </form>
   );
 };
