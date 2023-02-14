@@ -69,14 +69,15 @@ function App() {
   useEffect(() => {
     const getAchivements = async () => {
       const data = await getDocs(achivementsCollection);
-      setCardList(
-        data.docs.reverse().map((doc) => ({
+      setCardList(() => {
+        const result = data.docs.map((doc) => ({
           id: doc.id,
           category: doc.data().category,
           description: doc.data().description,
           date: doc.data().date,
-        }))
-      );
+        }));
+        return result.reverse();
+      });
     };
     getAchivements();
   }, [trigger]);
@@ -94,8 +95,8 @@ function App() {
     console.log(card);
 
     if (
-      card.category !== '' ||
-      card.description !== '' ||
+      card.category !== '' &&
+      card.description !== '' &&
       card.date !== ''
     ) {
       await updateDoc(doc(achivementsCollection, card.id), {
@@ -113,8 +114,8 @@ function App() {
     event.preventDefault();
 
     if (
-      cardFormState.category !== '' ||
-      cardFormState.description !== '' ||
+      cardFormState.category !== '' &&
+      cardFormState.description !== '' &&
       cardFormState.date !== ''
     ) {
       await addDoc(achivementsCollection, {
