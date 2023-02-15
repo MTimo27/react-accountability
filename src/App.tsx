@@ -1,7 +1,7 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from "react";
 
-import CardList from './components/CardList';
-import CreationForm from './components/CreationForm';
+import CardList from "./components/CardList";
+import CreationForm from "./components/CreationForm";
 
 import {
   getDocs,
@@ -9,9 +9,13 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 
-import { achivementsCollection } from './firebase/firebase-config.js';
+import {
+  achivementsCollection,
+  auth,
+} from "./firebase/firebase-config.js";
+import { Auth } from "./components/Auth";
 
 export interface CardData {
   id: string;
@@ -30,27 +34,27 @@ export const cardFormReducer = (
   action: CardFormAction
 ): CardData => {
   switch (action.type) {
-    case 'CATEGORY':
+    case "CATEGORY":
       return {
         ...state,
         category: action.value!,
       };
-    case 'DESCRIPTION':
+    case "DESCRIPTION":
       return {
         ...state,
         description: action.value!,
       };
-    case 'DATE':
+    case "DATE":
       return {
         ...state,
         date: action.value!,
       };
-    case 'RESET':
+    case "RESET":
       return {
-        id: '',
-        category: '',
-        description: '',
-        date: '',
+        id: "",
+        category: "",
+        description: "",
+        date: "",
       };
     default:
       return state;
@@ -60,7 +64,7 @@ export const cardFormReducer = (
 function App() {
   const [cardFormState, dispatchCardFormState] = useReducer(
     cardFormReducer,
-    { category: '', description: '', date: '', id: '' }
+    { category: "", description: "", date: "", id: "" }
   );
 
   const [cardList, setCardList] = useState<CardData[]>([]);
@@ -95,9 +99,9 @@ function App() {
     console.log(card);
 
     if (
-      card.category !== '' &&
-      card.description !== '' &&
-      card.date !== ''
+      card.category !== "" &&
+      card.description !== "" &&
+      card.date !== ""
     ) {
       await updateDoc(doc(achivementsCollection, card.id), {
         category: card.category,
@@ -105,7 +109,7 @@ function App() {
         date: card.date,
       });
       setTrigger((prev) => !prev);
-    } else alert('Please fill all the fields!');
+    } else alert("Please fill all the fields!");
   };
 
   const handleAddCard = async (
@@ -114,9 +118,9 @@ function App() {
     event.preventDefault();
 
     if (
-      cardFormState.category !== '' &&
-      cardFormState.description !== '' &&
-      cardFormState.date !== ''
+      cardFormState.category !== "" &&
+      cardFormState.description !== "" &&
+      cardFormState.date !== ""
     ) {
       await addDoc(achivementsCollection, {
         category: cardFormState.category,
@@ -124,10 +128,10 @@ function App() {
         date: cardFormState.date,
       });
       dispatchCardFormState({
-        type: 'RESET',
+        type: "RESET",
       });
       setTrigger((prev) => !prev);
-    } else alert('Please fill all the fields!');
+    } else alert("Please fill all the fields!");
   };
 
   const formChangeHandler = (
@@ -143,8 +147,11 @@ function App() {
     });
   };
 
+  console.log(auth.currentUser);
+
   return (
     <div className="w-full flex-col">
+      <Auth />
       <CreationForm
         formChangeHandler={formChangeHandler}
         handleAddCard={handleAddCard}
