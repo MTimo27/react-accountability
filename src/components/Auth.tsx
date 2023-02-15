@@ -1,4 +1,8 @@
-import React, { useReducer } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useReducer,
+} from "react";
 
 import {
   auth,
@@ -8,6 +12,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 
 interface formStateType {
@@ -45,17 +50,21 @@ const formReducer = (
   }
 };
 
-export const Auth = () => {
+interface Props {
+  setCurrentUser: Dispatch<
+    SetStateAction<string | undefined>
+  >;
+  currentUser: string | undefined;
+}
+
+export const Auth = ({
+  setCurrentUser,
+  currentUser,
+}: Props) => {
   const [formState, dispatchFormState] = useReducer(
     formReducer,
     { email: "", password: "" }
   );
-
-  const [currentUser, setCurrentUser] = React.useState<
-    string | undefined
-  >(undefined);
-
-  console.log(auth?.currentUser?.email);
 
   const handleSignIn = async (
     event: React.FormEvent<HTMLFormElement>
@@ -83,10 +92,25 @@ export const Auth = () => {
     }
   };
 
+  const signIn = async () => {
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        formState.email,
+        formState.password
+      );
+      setCurrentUser(auth.currentUser?.email!);
+      dispatchFormState({ type: "RESET" });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleLogOut = async () => {
     try {
       await signOut(auth);
-      setCurrentUser(auth.currentUser?.email!);
+      localStorage.clear();
+      setCurrentUser(undefined);
     } catch (error) {
       console.error(error);
     }
@@ -95,7 +119,7 @@ export const Auth = () => {
   return (
     <div className="w-full flex justify-center mt-10 mb-10">
       <div className="w-11/12 sm:w-1/3 border-2 border-gray-200 rounded-md p-5">
-        {!currentUser ? (
+        {currentUser === undefined ? (
           <form
             onSubmit={(event) => handleSignIn(event)}
             className="flex flex-col gap-2"
@@ -141,7 +165,7 @@ export const Auth = () => {
                 type="submit"
                 className="sm:w-32 p-1.5 rounded-md border-none bg-indigo-700 text-white"
               >
-                Sign in
+                Create account
               </button>
               <button
                 type="button"
@@ -149,6 +173,13 @@ export const Auth = () => {
                 className="sm:w-32 p-1.5 rounded-md border-none bg-indigo-700 text-white"
               >
                 Google sign in
+              </button>
+              <button
+                type="button"
+                onClick={signIn}
+                className="sm:w-32 p-1.5 rounded-md border-none bg-indigo-700 text-white"
+              >
+                Sign in
               </button>
             </div>
           </form>
