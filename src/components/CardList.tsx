@@ -1,5 +1,5 @@
-import { CardData } from '../App';
-import Card from './Card';
+import { CardData } from "../App";
+import Card from "./Card";
 
 const CardList: React.FC<{
   cardList: CardData[];
@@ -8,6 +8,7 @@ const CardList: React.FC<{
     event: React.FormEvent<HTMLFormElement> | undefined,
     card: CardData
   ) => void;
+  currentUser: string | undefined;
 }> = (props) => {
   return (
     <div className="flex flex-col justify-center items-center mb-10">
@@ -21,6 +22,7 @@ const CardList: React.FC<{
             cardData={card}
             deleteCardHandler={props.deleteCardHandler}
             editCardHandler={props.editCardHandler}
+            currentUser={props.currentUser}
           />
         ))}
       </div>

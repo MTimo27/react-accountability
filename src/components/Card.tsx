@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { CardData } from '../App';
-import EditForm from './EditForm';
+import React, { useState } from "react";
+import { CardData } from "../App";
+import EditForm from "./EditForm";
 
 const Card: React.FC<{
   cardData: CardData;
@@ -9,6 +9,7 @@ const Card: React.FC<{
     event: React.FormEvent<HTMLFormElement> | undefined,
     card: CardData
   ) => void;
+  currentUser: string | undefined;
 }> = (props) => {
   const [edit, setEdit] = useState(false);
   return (
@@ -25,29 +26,34 @@ const Card: React.FC<{
           <p className="text-end font-semibold">
             {props.cardData.date}
           </p>
+          <p className="text-end font-semibold">
+            {props.cardData.visibility?.toUpperCase()}
+          </p>
 
-          <div className="flex mt-2 gap-2 justify-end">
-            <button
-              onClick={() => {
-                props.editCardHandler(
-                  undefined,
-                  props.cardData
-                );
-                setEdit(true);
-              }}
-              className="w-32 p-1.5 rounded-md border-none bg-gray-400 text-white"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() =>
-                props.deleteCardHandler(props.cardData)
-              }
-              className="w-32 p-1.5 rounded-md border-none bg-red-700 text-white"
-            >
-              Delete
-            </button>
-          </div>
+          {props.currentUser !== undefined && (
+            <div className="flex mt-2 gap-2 justify-end">
+              <button
+                onClick={() => {
+                  props.editCardHandler(
+                    undefined,
+                    props.cardData
+                  );
+                  setEdit(true);
+                }}
+                className="w-32 p-1.5 rounded-md border-none bg-gray-400 text-white"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() =>
+                  props.deleteCardHandler(props.cardData)
+                }
+                className="w-32 p-1.5 rounded-md border-none bg-red-700 text-white"
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <>

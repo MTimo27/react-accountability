@@ -24,6 +24,7 @@ export interface CardData {
   category: string;
   description: string;
   date: string;
+  visibility: string;
 }
 
 interface CardFormAction {
@@ -51,12 +52,22 @@ export const cardFormReducer = (
         ...state,
         date: action.value!,
       };
+    case "VISIBILITY":
+      console.log(action.value);
+      return {
+        ...state,
+        visibility:
+          action.value! === "private"
+            ? "public"
+            : "private",
+      };
     case "RESET":
       return {
         id: "",
         category: "",
         description: "",
         date: "",
+        visibility: "private",
       };
     default:
       return state;
@@ -66,8 +77,16 @@ export const cardFormReducer = (
 function App() {
   const [cardFormState, dispatchCardFormState] = useReducer(
     cardFormReducer,
-    { category: "", description: "", date: "", id: "" }
+    {
+      category: "",
+      description: "",
+      date: "",
+      id: "",
+      visibility: "private",
+    }
   );
+
+  console.log(cardFormState);
 
   const [cardList, setCardList] = useState<CardData[]>([]);
   const [trigger, setTrigger] = useState(false);
@@ -88,10 +107,25 @@ function App() {
               category: doc.data().category,
               description: doc.data().description,
               date: doc.data().date,
+              visibility: doc.data().visibility,
             }));
             return result.reverse();
           });
-        } else setCardList([]);
+        } else {
+          const data = await getDocs(
+            collection(db, "public")
+          );
+          setCardList(() => {
+            const result = data.docs.map((doc) => ({
+              id: doc.id,
+              category: doc.data().category,
+              description: doc.data().description,
+              date: doc.data().date,
+              visibility: doc.data().visibility,
+            }));
+            return result.reverse();
+          });
+        }
       } catch (error) {
         console.log(error);
       }
@@ -105,6 +139,9 @@ function App() {
         deleteDoc(
           doc(collection(db, currentUser), card.id)
         );
+        if (card.visibility === "public") {
+          deleteDoc(doc(collection(db, "public"), card.id));
+        }
         setTrigger((prev) => !prev);
       }
     } catch (error) {
@@ -118,23 +155,54 @@ function App() {
   ) => {
     if (event) event.preventDefault();
     try {
+      if (card.visibility === "public") {
+      }
       if (
         card.category !== "" &&
         card.description !== "" &&
         card.date !== ""
       ) {
         if (currentUser !== undefined) {
+          handleAddPublicCard(card);
           await updateDoc(
             doc(collection(db, currentUser), card.id),
             {
               category: card.category,
               description: card.description,
               date: card.date,
+              visibility: card.visibility,
             }
           );
           setTrigger((prev) => !prev);
         }
       } else alert("Please fill all the fields!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAddPublicCard = async (card: CardData) => {
+    try {
+      if (card.visibility === "public") {
+        if (
+          cardFormState.category !== "" &&
+          cardFormState.description !== "" &&
+          cardFormState.date !== ""
+        ) {
+          if (currentUser !== undefined) {
+            await addDoc(collection(db, "public"), {
+              category: card.category,
+              description: card.description,
+              date: card.date,
+              visibility: card.visibility,
+            });
+          }
+        } else {
+          await deleteDoc(
+            doc(collection(db, "public"), card.id)
+          );
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -151,10 +219,12 @@ function App() {
         cardFormState.date !== ""
       ) {
         if (currentUser !== undefined) {
+          handleAddPublicCard(cardFormState);
           await addDoc(collection(db, currentUser), {
             category: cardFormState.category,
             description: cardFormState.description,
             date: cardFormState.date,
+            visibility: cardFormState.visibility,
           });
           dispatchCardFormState({
             type: "RESET",
@@ -180,8 +250,6 @@ function App() {
     });
   };
 
-  console.log(auth.currentUser);
-
   return (
     <div className="w-full flex-col">
       <Auth
@@ -194,11 +262,13 @@ function App() {
         category={cardFormState.category}
         description={cardFormState.description}
         date={cardFormState.date}
+        visibility={cardFormState.visibility}
       />
       <CardList
         cardList={cardList}
         deleteCardHandler={deleteCardHandler}
         editCardHandler={editCardHandler}
+        currentUser={currentUser}
       />
     </div>
   );

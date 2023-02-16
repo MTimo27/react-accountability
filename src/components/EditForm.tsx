@@ -1,5 +1,5 @@
-import React, { Dispatch, useReducer } from 'react';
-import { CardData, cardFormReducer } from '../App';
+import React, { Dispatch, useReducer } from "react";
+import { CardData, cardFormReducer } from "../App";
 
 const EditForm: React.FC<{
   cardData: CardData;
@@ -16,6 +16,7 @@ const EditForm: React.FC<{
       description: props.cardData.description,
       date: props.cardData.date,
       id: props.cardData.id,
+      visibility: props.cardData.visibility,
     }
   );
 
@@ -86,6 +87,27 @@ const EditForm: React.FC<{
           value={cardFormState.date}
           onChange={formChangeHandler}
         />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            value={cardFormState.visibility}
+            className="sr-only peer"
+            name="visibility"
+            onChange={formChangeHandler}
+            checked={
+              cardFormState.visibility === "private"
+                ? false
+                : true
+            }
+          />
+          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          <span className="ml-3 text-sm font-medium">
+            Make public
+          </span>
+        </label>
       </div>
 
       <button
